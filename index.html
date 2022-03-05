@@ -59,11 +59,11 @@
 
 <!-- H T M L : page layout -->
 <html lang="en">
-
     <!-- #region  C S S : visual styles -->
-    <style>
+    <!-- Popular Style Sheets from BOOTSTRAP -->
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
 
-    </style>
     <!-- #endregion -->
 
     <!-- #region  H E A D E R -->
@@ -73,26 +73,14 @@
               content="IE=edge">
         <meta name="viewport"
               content="width=120, initial-scale=1.0">
-        <title>MIT xPRO: WEEK n</title>
+        <title>MIT xPRO: WEEK 7 - PacMen</title>
     </head>
     <!-- #endregion -->
 
     <!-- #region  B O D Y -->
     <body>
-        <div id='game'>
-            <button id="btnUI_Button1"
-                    width='200'
-                    height='30'>Add PacMan</button>
-            <button id="btnUI_Button2"
-                    width='200'
-                    height='30'>Start Game</button>
-            <button id="btnUI_Button3"
-                    width='200'
-                    height='30'>Pause Game</button>
-            <button id="btnUI_Button4"
-                    width='200'
-                    height='30'>Stop Game</button>
-        </div>
+        <div id='controls'></div>
+        <div id='game'></div>
     </body>
     <!-- #endregion -->
 
@@ -101,20 +89,30 @@
     <!-- #endregion -->
 
     <!-- #region  I M P O R T : shared JavaScript code -->
-    <!-- Include our common MicroCODE Client Library -->
-    <!-- <script src="mcodeClient.js"></script> -->
+    <!-- Our PACMEN UI Functions -->
+    <script src='ui.js'></script>
     <!-- #endregion -->
 
     <!-- J A V A S C R I P T : page specific code -->
     <script>
+        // #region  P R I V A T E   C O N S T A N T S
+
+        const CONTROLS_HEIGHT = 110;  // to keep PacMen off the Game Controls, until I sense runtime height
+        const CHOMP_INTERVAL = 6;  // how many update events it takes to chomp
+
+        // #endregion
+
         // #region  P R I V A T E   F I E L D S
 
-        const gameTimer = {};  // timer controlling the game
-        const pacMen = []; // This array holds all the PacMen
-        const pacArray = [
-            ['./images/PacMan1.png', './images/PacMan2.png'],
-            ['./images/PacMan3.png', './images/PacMan4.png'],
-        ];
+        var gameTimer = {};  // timer controlling the game
+        var gameRunning = false;
+
+        var pacMen = []; // This array holds all the PacMen
+        const pacArray =
+            [
+                ['./images/PacMan1.png', './images/PacMan2.png'], // chomping left-to-right
+                ['./images/PacMan3.png', './images/PacMan4.png'], // chomping left-to-right
+            ];
 
         var pos = 0;
         var direction = 0;
@@ -137,69 +135,139 @@
         }
 
         /**
-         * @function makePac() -- Factory to make a PacMan at a random position with random velocity.
+         * @function makePacMan() -- Factory to make a PacMan at a random position with random velocity.
          *
          * @returns {object} describing a new 'PacMan' at a random position.
          */
-        function makePac()
+        function makePacMan()
         {
             // returns an object with random values scaled {x: *, y: *}
-            let velocity = setToRandom(10);
-            let position = setToRandom(200);
+            let velocity = setToRandom(30);
+            let position = setToRandom(CONTROLS_HEIGHT + 400);
+
+            // keep new PacMen off the 'Game Controls'
+            if (position.y < CONTROLS_HEIGHT)
+            {
+                position.y = CONTROLS_HEIGHT;
+            }
 
             // Add image to div id = game
             let game = document.getElementById('game');
-            let newimg = document.createElement('img');
+            let face = document.createElement('img');
 
-            newimg.style.position = 'absolute';
-            newimg.src = './images/PacMan1.png';
-            newimg.width = 100;
+            face.style.position = 'absolute';
+            face.mouth = "open";
+            face.direction = "right";
+            face.width = 100;
+            face.counter = 0;
 
             // Set position here
-            newimg.style.left = position.x;
-            newimg.style.top = position.y;
+            face.style.left = position.x;
+            face.style.top = position.y;
 
             // Add new Child image to game
-            game.appendChild(newimg);
+            game.appendChild(face);
 
             // return details in an object
-            return;
+            return { position, velocity, face };
+        }
+
+        /**
+         * @function setFaceImage() -- changes the image used to render the PacMan based on direction and chomp.
+         *
+         * @returns {side-effects} changes PacMan image.
+         */
+        function setFaceImage(pacMan)
+        {
+            // Set explicit 'direction' for face control
+            if (pacMan.velocity.x < 0)
             {
-                position, velocity, newimg;
-            };
+                pacMan.face.direction = "left";
+            }
+            else
+            {
+                pacMan.face.direction = "right";
+            }
+
+            // Chomp
+            pacMan.face.counter++;
+
+            if (pacMan.face.counter % CHOMP_INTERVAL === 0)
+            {
+                if (pacMan.face.mouth === "open")
+                {
+                    pacMan.face.mouth = "close";
+                }
+                else
+                {
+                    pacMan.face.mouth = "open";
+                }
+            }
+
+            if (pacMan.face.direction === "right")
+            {
+                // going left-to-right
+                if (pacMan.face.mouth === "open")
+                {
+                    // mouth opened
+                    pacMan.face.src = "./images/PacMan1.png";
+                }
+                else
+                {
+                    // mouth closed
+                    pacMan.face.src = "./images/PacMan2.png";
+                }
+            }
+            else
+            {
+                // going right-to-left
+                if (pacMan.face.mouth == "open")
+                {
+                    // mouth opened
+                    pacMan.face.src = "./images/PacMan3.png";
+                }
+                else
+                {
+                    // mouth closed
+                    pacMan.face.src = "./images/PacMan4.png";
+                }
+            }
         }
 
         /**
          * @function addNewPacMan() -- make a PacMan and adds it to the private Context Array.
          *
-         * @returns {?} ...
+         * @returns {side-effects} adds a new PacMan to the PacMen array.
          */
         function addNewPacMan()
         {
-            pacMen.push(makePac()); // add a new PacMan
+            pacMen.push(makePacMan()); // add a new PacMan to end of array
+
+            setFaceImage(pacMen[pacMen.length - 1]);  // update image of face
         }
 
         /**
          * @function checkCollisions() -- checks a PacMan position and changes direction when it hits a wall.
          *
-         * @returns {?} ...
+         * @returns {side-effects} changes position and velocity of PacMen.
          */
-        function checkCollisions(item)
+        function checkCollisions(pacMan)
         {
             // Detect collision with all walls and make pacman bounce
+            let controlHeader = document.getElementById("controls");
 
             // Check X-Axis
-            if (item.position.x + item.velocity.x + item.newimg.width > window.innerWidth
-                || item.position.x + item.velocity.x < 0)
+            if (pacMan.position.x + pacMan.velocity.x + pacMan.face.width > window.innerWidth
+                || pacMan.position.x + pacMan.velocity.x < 0)
             {
-                item.velocity.x = -item.velocity.x;
+                pacMan.velocity.x = -pacMan.velocity.x;
             }
 
             // Check Y-Axis
-            if (item.position.y + item.velocity.y + item.newimg.height > window.innerHeight
-                || item.position.y + item.velocity.y < 0)
+            if (pacMan.position.y + pacMan.velocity.y + pacMan.face.height > window.innerHeight
+                || pacMan.position.y + pacMan.velocity.y < CONTROLS_HEIGHT)
             {
-                item.velocity.y = -item.velocity.y;
+                pacMan.velocity.y = -pacMan.velocity.y;
             }
         }
 
@@ -211,17 +279,46 @@
         function UpdatePacMen()
         {
             // loop over pacMen array and move each one and update the DOM
-            pacMen.forEach((item) =>
+            pacMen.forEach((pacMan) =>
             {
-                checkCollisions(item);
+                checkCollisions(pacMan);
 
-                item.position.x += item.velocity.x;
-                item.position.y += item.velocity.y;
+                pacMan.position.x += pacMan.velocity.x;
+                pacMan.position.y += pacMan.velocity.y;
 
-                item.newimg.style.left = item.position.x;
-                item.newimg.style.top = item.position.y;
+                pacMan.face.style.left = pacMan.position.x;
+                pacMan.face.style.top = pacMan.position.y;
+
+                setFaceImage(pacMan);
             });
+
+            if (gameRunning)
+            {
+                // call again in time
+                setTimeout(UpdatePacMen, 20);
+            }
         }
+
+        /**
+         * @function mapEventHandlers() -- maps event handlers to teh *current* Buttons in the 'game' <div>.
+         *                                 Done as a function to recall after the buttons are reset in the UI.
+         *
+         * @returns - nothing, just maps event handlers.
+         */
+        function mapEventHandlers()
+        {
+            document.getElementById("btnUI_Button1")
+                .addEventListener("click", () => { btnUI_Button1_Click('Button #1: Add PacMan', callbackFormatter); });
+
+            document.getElementById("btnUI_Button2")
+                .addEventListener("click", () => { btnUI_Button2_Click('Button #2: Start Game', callbackFormatter); });
+
+            document.getElementById("btnUI_Button3")
+                .addEventListener("click", () => { btnUI_Button3_Click('Button #3: Pause Game', callbackFormatter); });
+
+            document.getElementById("btnUI_Button4")
+                .addEventListener("click", () => { btnUI_Button4_Click('Button #4: Stop Game', callbackFormatter); });
+        };
 
         // #endregion
 
@@ -232,7 +329,7 @@
         function callbackFormatter(messageData)
         {
             // handle item manipulation...
-            return messageData + _notImplemented;
+            return messageData + ' was clicked.';
         }
 
         // #endregion
@@ -259,6 +356,7 @@
             console.log(callBack(messageData2));
 
             // Start the Game...
+            gameRunning = true;
             gameTimer = setTimeout(UpdatePacMen, 20);
         }
 
@@ -268,8 +366,21 @@
             // Handle 'Click'...
             console.log(callBack(messageData3));
 
-            // Pause the Game...
-            clearTimeout(gameTimer);
+            // Pause/Restart the Game...
+            if (gameRunning)
+            {
+                gameRunning = false;
+                var button = document.getElementById("btnUI_Button3");
+                button.innerText = "Restart Game";
+                clearTimeout(gameTimer);
+            }
+            else
+            {
+                gameRunning = true;
+                var button = document.getElementById("btnUI_Button3");
+                button.innerText = "Pause Game";
+                gameTimer = setTimeout(UpdatePacMen, 20);
+            }
         }
 
         // Button #4 handler: STOP GAME
@@ -279,13 +390,12 @@
             console.log(callBack(messageData4));
 
             // Stop the Game...
+            gameRunning = false;
             clearTimeout(gameTimer);
 
-            // clear all the PacMen from the DOM
-            pacMen.forEach((item) =>
-            {
-                game.removeChild(item);
-            });
+            // clear all the PacMen from the DOM and reset buttons handling
+            loadDefault();
+            mapEventHandlers();
 
             // clear the PacMen from our Context
             pacMen = [];
@@ -298,19 +408,11 @@
         // Load data sources...
 
         // Map Event Handlers...
-        document.getElementById("btnUI_Button1")
-            .addEventListener("click", () => { btnUI_Button1_Click('Button #1: Add PacMan', callbackFormatter); });
-
-        document.getElementById("btnUI_Button2")
-            .addEventListener("click", () => { btnUI_Button2_Click('Button #2: Start Game', callbackFormatter); });
-
-        document.getElementById("btnUI_Button3")
-            .addEventListener("click", () => { btnUI_Button3_Click('Button #3: Pause Game', callbackFormatter); });
-
-        document.getElementById("btnUI_Button4")
-            .addEventListener("click", () => { btnUI_Button4_Click('Button #4: Stop Game', callbackFormatter); });
+        mapEventHandlers();
 
         // Set Timeout Events...
+        gameRunning = false;
+        clearTimeout(gameTimer);
 
         // Run Timed Events...
 
