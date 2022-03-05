@@ -109,12 +109,12 @@
     <script>
         // #region  P R I V A T E   F I E L D S
 
+        const gameTimer = {};  // timer controlling the game
         const pacMen = []; // This array holds all the PacMen
         const pacArray = [
-            ['PacMan1.png', 'PacMan2.png'],
-            ['PacMan3.png', 'PacMan4.png']
+            ['./images/PacMan1.png', './images/PacMan2.png'],
+            ['./images/PacMan3.png', './images/PacMan4.png'],
         ];
-        const gameTimer;  // timer controlling the game
 
         var pos = 0;
         var direction = 0;
@@ -152,22 +152,20 @@
             let newimg = document.createElement('img');
 
             newimg.style.position = 'absolute';
-            newimg.src = 'PacMan1.png';
+            newimg.src = './images/PacMan1.png';
             newimg.width = 100;
 
-            //
-            // set position here
-            //
+            // Set position here
+            newimg.style.left = position.x;
+            newimg.style.top = position.y;
 
-            // add new Child image to game
-            game.appendChild( ? ? ?);
+            // Add new Child image to game
+            game.appendChild(newimg);
 
             // return details in an object
             return;
             {
-                position,
-                    velocity,
-                    newimg;
+                position, velocity, newimg;
             };
         }
 
@@ -188,9 +186,21 @@
          */
         function checkCollisions(item)
         {
-            //
-            // detect collision with all walls and make pacman bounce
-            //
+            // Detect collision with all walls and make pacman bounce
+
+            // Check X-Axis
+            if (item.position.x + item.velocity.x + item.newimg.width > window.innerWidth
+                || item.position.x + item.velocity.x < 0)
+            {
+                item.velocity.x = -item.velocity.x;
+            }
+
+            // Check Y-Axis
+            if (item.position.y + item.velocity.y + item.newimg.height > window.innerHeight
+                || item.position.y + item.velocity.y < 0)
+            {
+                item.velocity.y = -item.velocity.y;
+            }
         }
 
         /**
