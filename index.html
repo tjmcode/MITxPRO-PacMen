@@ -49,6 +49,7 @@
  *  Date:         By-Group:   Rev:     Description:
  *
  *  05-Mar-2022   TJM-MCODE  {0001}    New file created from the MicroCODE HTML Template for "PacMen" exercise.
+ *  06-Mar-2022   TJM-MCODE  {0002}    Added Pause/Restart, Speed Memory, Stop/Reset, and Bootstrap Styles.
  *
  *
 -->
@@ -63,7 +64,6 @@
     <!-- Popular Style Sheets from BOOTSTRAP -->
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-
     <!-- #endregion -->
 
     <!-- #region  H E A D E R -->
@@ -91,6 +91,8 @@
     <!-- #region  I M P O R T : shared JavaScript code -->
     <!-- Our PACMEN UI Functions -->
     <script src='ui.js'></script>
+    <!-- MicroCODE Client Library -->
+    <script src='mcodeClient.js'></script>
     <!-- #endregion -->
 
     <!-- J A V A S C R I P T : page specific code -->
@@ -98,8 +100,9 @@
 
         // #region  P R I V A T E   C O N S T A N T S
 
-        const CONTROLS_HEIGHT = 110;  // to keep PacMen off the Game Controls, until I sense runtime height
+        const CONTROLS_HEIGHT = 120;  // to keep PacMen off the Game Controls, until I sense runtime height
         const CHOMP_INTERVAL = 6;  // how many update events it takes to chomp
+        const DEFAULT_SPEED = 20;  // defaultevent interval in milliseconds
 
         // #endregion
 
@@ -107,6 +110,7 @@
 
         var gameTimer = {};  // timer controlling the game
         var gameRunning = false;
+        var gameSpeed = DEFAULT_SPEED;
 
         var pacMen = []; // This array holds all the PacMen
         const pacArray =
@@ -117,6 +121,7 @@
 
         var pos = 0;
         var direction = 0;
+        var controlsHeight = 0;
 
         // #endregion
 
@@ -144,12 +149,12 @@
         {
             // returns an object with random values scaled {x: *, y: *}
             let velocity = setToRandom(30);
-            let position = setToRandom(CONTROLS_HEIGHT + 400);
+            let position = setToRandom(controlsHeight + 400);
 
             // keep new PacMen off the 'Game Controls'
-            if (position.y < CONTROLS_HEIGHT)
+            if (position.y < controlsHeight)
             {
-                position.y = CONTROLS_HEIGHT;
+                position.y = controlsHeight;
             }
 
             // Add image to div id = game
@@ -193,7 +198,7 @@
             // Chomp
             pacMan.face.counter++;
 
-            if (pacMan.face.counter % CHOMP_INTERVAL === 0)
+            if ((pacMan.face.counter % CHOMP_INTERVAL) === 0)
             {
                 if (pacMan.face.mouth === "open")
                 {
@@ -258,17 +263,17 @@
             let controlHeader = document.getElementById("controls");
 
             // Check X-Axis
-            if (pacMan.position.x + pacMan.velocity.x + pacMan.face.width > window.innerWidth
-                || pacMan.position.x + pacMan.velocity.x < 0)
+            if ((pacMan.position.x + pacMan.velocity.x + pacMan.face.width) > window.innerWidth
+                || (pacMan.position.x + pacMan.velocity.x) < 0)
             {
-                pacMan.velocity.x = -pacMan.velocity.x;
+                pacMan.velocity.x = -pacMan.velocity.x;  // reverse X direction
             }
 
             // Check Y-Axis
-            if (pacMan.position.y + pacMan.velocity.y + pacMan.face.height > window.innerHeight
-                || pacMan.position.y + pacMan.velocity.y < CONTROLS_HEIGHT)
+            if ((pacMan.position.y + pacMan.velocity.y + pacMan.face.height) > window.innerHeight
+                || (pacMan.position.y + pacMan.velocity.y) < controlsHeight)
             {
-                pacMan.velocity.y = -pacMan.velocity.y;
+                pacMan.velocity.y = -pacMan.velocity.y;  // reverse Y direction
             }
         }
 
@@ -296,7 +301,7 @@
             if (gameRunning)
             {
                 // call again in time
-                setTimeout(UpdatePacMen, 20);
+                setTimeout(UpdatePacMen, gameSpeed);
             }
         }
 
@@ -320,6 +325,25 @@
             document.getElementById("btnUI_Button4")
                 .addEventListener("click", () => { btnUI_Button4_Click('Button #4: Stop Game', callbackFormatter); });
         };
+
+        /**
+         * @function getControlPanelHeight() -- gets the current height of the Control Panel or default.
+         *
+         * @returns - nothing, just update private field.
+         */
+        function getControlPanelHeight()
+        {
+            let controlPanel = document.getElementById('controls');
+            if (controlPanel)
+            {
+                var rect = controlPanel.getBoundingClientRect();
+                controlsHeight = rect.height;
+            }
+            if (defaultZero(controlsHeight) === 0)
+            {
+                controlsHeight = CONTROLS_HEIGHT;
+            }
+        }
 
         // #endregion
 
@@ -350,21 +374,32 @@
             addNewPacMan();
         }
 
-        // Button #2 handler: START GAME
+        // Button #2 handler: START/FASTER GAME
         function btnUI_Button2_Click(messageData2, callBack)
         {
-            // Handle 'Click'...
+            // Log 'Click'...
             console.log(callBack(messageData2));
 
             // Start the Game...
-            gameRunning = true;
-            gameTimer = setTimeout(UpdatePacMen, 20);
+            if (gameRunning)
+            {
+                gameSpeed -= 1;  // speed up, decease event interval
+            }
+            else
+            {
+                gameRunning = true;
+                gameSpeed = DEFAULT_SPEED;
+                gameTimer = setTimeout(UpdatePacMen, gameSpeed);
+            }
+
+            var button = document.getElementById("btnUI_Button2");
+            button.innerText = "Go Faster!";
         }
 
-        // Button #3 handler: PAUSE GAME
+        // Button #3 handler: PAUSE/RESTART GAME
         function btnUI_Button3_Click(messageData3, callBack)
         {
-            // Handle 'Click'...
+            // Log 'Click'...
             console.log(callBack(messageData3));
 
             // Pause/Restart the Game...
@@ -380,26 +415,31 @@
                 gameRunning = true;
                 var button = document.getElementById("btnUI_Button3");
                 button.innerText = "Pause Game";
-                gameTimer = setTimeout(UpdatePacMen, 20);
+                gameTimer = setTimeout(UpdatePacMen, gameSpeed);
             }
         }
 
         // Button #4 handler: STOP GAME
         function btnUI_Button4_Click(messageData4, callBack)
         {
-            // Handle 'Click'...
+            // Log 'Click'...
             console.log(callBack(messageData4));
 
             // Stop the Game...
             gameRunning = false;
             clearTimeout(gameTimer);
+            gameSpeed = DEFAULT_SPEED;
 
             // clear all the PacMen from the DOM and reset buttons handling
-            loadDefault();
+            loadDefaultControls();
             mapEventHandlers();
 
             // clear the PacMen from our Context
             pacMen = [];
+
+            // Update 'Start Button' text
+            var button = document.getElementById("btnUI_Button2");
+            button.innerText = "Start Game";
         }
 
         // #endregion
@@ -411,11 +451,11 @@
         // Map Event Handlers...
         mapEventHandlers();
 
-        // Set Timeout Events...
+        // Set-up UI...
         gameRunning = false;
         clearTimeout(gameTimer);
-
-        // Run Timed Events...
+        getControlPanelHeight();
+        window.addEventListener('resize', getControlPanelHeight);
 
         // #endregion
     </script>

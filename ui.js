@@ -57,9 +57,9 @@ ui.blank =
     </div>`;
 
 ui.default =
-    `<div class="card-header">PacMen Controls
+    `<div class="col-10">
+     <div class="card-header"><h2>PacMen Controls</h2>
      <p>
-        <div class="col-10">
                 <button id="btnUI_Button1" class="btn-outline-info"
                         width='200'
                         height='30'>Add PacMan</button>
@@ -72,8 +72,8 @@ ui.default =
                 <button id="btnUI_Button4" class="btn-outline-danger"
                         width='200'
                         height='30'>Stop Game</button>
-        </div>
     </p>
+    </div>
     </div>`;
 
 //// load*() -- UI functions that replace the HTML code of the 'game' DIV with the requested UI Element...
@@ -82,7 +82,7 @@ ui.default =
  * Loads the default PacMen controls into the UI.
  *
  */
-var loadDefault = function ()
+var loadDefaultControls = function ()
 {
     controls.innerHTML = ui.default;
 };
@@ -102,4 +102,4 @@ var showBlankcontrols = function ()
 var controls = document.getElementById('game');
 
 // Start by showing nothing but the buttons'...
-loadDefault();
+loadDefaultControls();
