@@ -13,7 +13,7 @@ This repository holds my version of the "PacMen" excercise from WEEK 7 of the "M
 
 ### Dependencies
 
-* MIT xPRO: "PacMen" Starter Code.
+* MIT xPRO: "PacMen" Starter Code, embeedded and refactored in this project.
 
 
 ### Installing
