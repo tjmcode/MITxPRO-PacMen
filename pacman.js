@@ -1,8 +1,8 @@
-// <copyright file="ui.js" company="MicroCODE Incorporated">Copyright © 2021 MicroCODE Incorporated Troy, MI</copyright><author>Timothy J. McGuire</author>
+// <copyright file="pacman.js" company="MicroCODE Incorporated">Copyright © 2021 MicroCODE Incorporated Troy, MI</copyright><author>Timothy J. McGuire</author>
 
 /*
  *      Title:    PacMen UI
- *      Module:   modules (MITxPRO-PacMenExercise:ui.js)
+ *      Module:   modules (MITxPRO-PacMenExercise:pacman.js)
  *      Project:  MicroCODE Version of MIT 'PacMen'
  *      Customer: Internal
  *      Creator:  MicroCODE Incorporated
@@ -42,7 +42,7 @@
  *
  *  Date:         By-Group:   Rev:     Description:
  *
- *  05-Mar-2022   TJM-MCODE  {0001}    New module based on my MIT Fire Hydrant assignment for 'PacMen'.
+ *  05-Mar-2022   TJM-MCODE  {0001}    New module based on my MIT Fire Hydrant assignment modified for 'PacMen'.
  *
  *
  *
@@ -96,6 +96,23 @@ var loadDefaultControls = function ()
 var showBlankcontrols = function ()
 {
     controls.innerHTML = ui.blank;
+};
+
+/**
+ * Returns a key's value unless 'undefined' in whcih case it returns ZERO (0)).
+ *
+ * @param {object} key field being accessed.
+ */
+var defaultZero = function (key)
+{
+    if ((typeof key === 'undefined') || (key == ""))
+    {
+        return 0;
+    }
+    else
+    {
+        return key;
+    }
 };
 
 // Get Handles to the HTML elements...

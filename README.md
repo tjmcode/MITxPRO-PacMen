@@ -56,7 +56,7 @@ Contributors names and contact info
 
 
 
-## Version History
+## Release History
 
 * 0.2
     * Added Start/Faster, Pause/Restart, Stop and used BOOTSTRAP Styles.
@@ -66,6 +66,15 @@ Contributors names and contact info
 * 0.0
     * Cloned the MIT Starter Code
 
+## Future Development
+
+* 0.3
+    * New Feature: Change PacMan image to show 'impact' on walls
+    * New Feature: Display 'Game Speed' for immedidate feedback
+    * Fix Defects: None open at this time
+
+* 0.4
+    * New Feature: Use a nicer Bootstrap Style for the Control Panel
 
 
 ## License
