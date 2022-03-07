@@ -13,7 +13,7 @@ This repository holds my version of the "PacMen" excercise from WEEK 7 of the "M
 
 ### Dependencies
 
-* MIT xPRO: "PacMen" Starter Code, embeedded and refactored in this project.
+* MIT xPRO: "PacMen" Starter Code, embedded and refactored in this project.
 
 
 ### Installing
@@ -64,26 +64,19 @@ Contributors names and contact info
     * Refactored into the MicroCODE [MCODE] style and templates.
     * See [commit change]() or See [release history]()
 * 0.0
-    * Cloned the MIT Starter Code
+    * Cloned the MIT Starter Code.
 
 ## Future Development
 
 * 0.3
-    * New Feature: Change PacMan image to show 'impact' on walls
-    * New Feature: Display 'Game Speed' for immedidate feedback
-    * Fix Defects: None open at this time
+    * New Feature: Change PacMan image to show 'impact' on walls.
+    * New Feature: Display 'Game Speed' for immedidate feedback.
+    * Fix Defects: None open at this time.
 
 * 0.4
-    * New Feature: Use a nicer Bootstrap Style for the Control Panel
+    * New Feature: Use a nicer Bootstrap Style for the Control Panel.
 
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE.md file for details
-
-
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [AirBnb's JS StyleGuide](https://github.com/airbnb/javascript)
